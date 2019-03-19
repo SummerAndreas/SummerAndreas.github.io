@@ -6,6 +6,10 @@ p {
     color: maroon;
   }
   
+  h2.destination {
+    font-family: cursive;
+  }
+  
   .title {
     color: teal;
   }
@@ -16,10 +20,11 @@ p {
   .publish-time {
     color: gray;
   }
+  
   .cursive {
     font-family: cursive;
   }
+  
   .capitalize {
     text-transform: capitalize;
   }
-  
