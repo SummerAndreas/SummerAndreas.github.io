@@ -4,10 +4,13 @@ body {
 }
 header {
     text-align: center;
+    background-image: url("images/header.jpg");
+    background-position: 0 50%;
 
 }
 header h2 {
     font-size: 4em;
+    color: white;
 }
 header h3 {
     font-size: 2em;
