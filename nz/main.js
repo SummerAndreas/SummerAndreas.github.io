@@ -7,5 +7,9 @@ const titel = div.getAttribute("data-title");
 
 //Karte initialisieren
 let karte = L.map("map");
-console.log(karte);
+//console.log(karte);
 
+karte.setView(
+    [breite,laenge],
+    13
+);
