@@ -15,4 +15,8 @@ karte.setView(
 );
 
 //Open Street Map einbauen
-L.tileLayer("http//{s}.tile.osm.org/{z}/{x}/{y}.png").addTo(karte);
+L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png").addTo(karte);
+let pin = L.marker(
+    [breite,laenge]
+).addTo(karte);
+
