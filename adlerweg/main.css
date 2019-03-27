@@ -6,15 +6,17 @@ body {
 header {
     text-align: center;
     background-image: url("images/header.jpg");
-    background-position: 0 50%;
+        background-position: 0 8%;
+        
+   
     
 }
 header h2 {
     font-size: 4em;
-    color: white;
+    color: black;
     margin: 0;
     padding: 1em 0;
-}
+   }
 header h3 {
     font-size: 2em;
     margin: 0;
