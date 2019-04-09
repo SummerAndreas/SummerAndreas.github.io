@@ -9,12 +9,13 @@ const titel = div.getAttribute("data-title");
 let karte = L.map("map");
 //console.log(karte);
 
+//Karten Ort + Zoom
 karte.setView(
     [breite, laenge],
     13
 );
 
-//Maps Einbauen
+//Karten Einbauen
 const kartenLayer = {
     osm: L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
         subdomains: ["a", "b", "c"],
@@ -33,9 +34,9 @@ const kartenLayer = {
         attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>'
     }),
 };
-kartenLayer.osm.addTo(karte);
+kartenLayer.stamen_toner.addTo(karte);
 
-//Karten auswahl Layer
+//Karten Layer Auswahl
 L.control.layers({
     "Open Street Map": kartenLayer.osm,
     "Stamen Toner": kartenLayer.stamen_toner,
@@ -53,13 +54,13 @@ let pin = L.marker(
 
 // Popup zum Pin hängen
 pin.bindPopup(titel).openPopup();
-//Koordinaten einfügen
+
+//Koordinaten hinzufügen
 var hash = new L.Hash(karte);
-//Koordinaten bei Mausklick
+
+//Koordinaten bei Mausklick anzeigen
 var coords = new L.Control.Coordinates();
-
 coords.addTo(karte);
-
 karte.on('click', function (e) {
     coords.setCoordinates(e);
 });
