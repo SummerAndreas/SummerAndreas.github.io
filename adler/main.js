@@ -44,18 +44,18 @@ const kartenLayer = {
         subdomains: ["maps", "maps1", "maps2", "maps3", "maps4"],
         attribution: 'Datenquelle: <a href="https://www.basemap.at">basemap.at</a>'
     }),
-    stamen_toner : L.tileLayer("https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png", {
+    stamen_toner: L.tileLayer("https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png", {
         subdomains: ["a", "b", "c"],
         attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>'
-     }),
-    stamen_relief : L.tileLayer("https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg", {
-        subdomains: ["a", "b", "c"],
-        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>' 
     }),
-    stamen_watercolor : L.tileLayer("https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg", {
+    stamen_relief: L.tileLayer("https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg", {
         subdomains: ["a", "b", "c"],
-        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>' 
-    }), 
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>'
+    }),
+    stamen_watercolor: L.tileLayer("https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg", {
+        subdomains: ["a", "b", "c"],
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>'
+    }),
 
 };
 //Open Street Map einbauen
@@ -67,16 +67,16 @@ kartenLayer.bmapoberflaeche.addTo(karte);
 
 L.control.layers({
     "Open Street Map": kartenLayer.osm,
-    "Geoland Basemap" : kartenLayer.geolandbasemap,
-    "Geoland Basemap Overlay" : kartenLayer.bmapoverlay,
-    "Geoland Basemap Grau" : kartenLayer. bmapgrau,
-    "Geoland Basemap high dpi" : kartenLayer.geolandbasemaphidpi,
-    "Geoland Basemap Orthophoto" : kartenLayer.bmaporthofoto,
-    "Geoland Basemap Legende" : kartenLayer.bmapgelaende,
-    "Geoland Basemap Oberflaeche" : kartenLayer.bmapoberflaeche,
-    "Stamen Toner" : kartenLayer.stamen_toner,
-    "Stamen Relief" : kartenLayer.stamen_relief,
-    "Stamen Watercolor" : kartenLayer.stamen_watercolor
+    "Geoland Basemap": kartenLayer.geolandbasemap,
+    "Geoland Basemap Overlay": kartenLayer.bmapoverlay,
+    "Geoland Basemap Grau": kartenLayer.bmapgrau,
+    "Geoland Basemap high dpi": kartenLayer.geolandbasemaphidpi,
+    "Geoland Basemap Orthophoto": kartenLayer.bmaporthofoto,
+    "Geoland Basemap Legende": kartenLayer.bmapgelaende,
+    "Geoland Basemap Oberflaeche": kartenLayer.bmapoberflaeche,
+    "Stamen Toner": kartenLayer.stamen_toner,
+    "Stamen Relief": kartenLayer.stamen_relief,
+    "Stamen Watercolor": kartenLayer.stamen_watercolor
 }).addTo(karte);
 
 //Popup zum Pin heangen
@@ -107,10 +107,10 @@ karte.fitBounds(blickeGruppe.getBounds());
 karte.addControl(new L.Control.Fullscreen());
 var hash = new L.Hash(karte);
 
-var coords = new L.Control.Coordinates(); 
+var coords = new L.Control.Coordinates();
 
 coords.addTo(karte);
 
-karte.on('click', function(e) {
-	coords.setCoordinates(e);
+karte.on('click', function (e) {
+    coords.setCoordinates(e);
 });
