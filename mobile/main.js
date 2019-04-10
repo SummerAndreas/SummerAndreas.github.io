@@ -56,7 +56,7 @@ let positionsmarker = L.marker([47,11]).addTo(karte);
 karte.locate({
     setView : true,
     maxZoom : 16,
-watch: true,
+
 });
 
 karte.on("locationfound", function(event){
