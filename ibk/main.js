@@ -52,26 +52,11 @@ const kartenLayer = {
     }),
 
 };
-let positionsmarker = L.marker([47,11]).addTo(karte);
-karte.locate({
-    setView : true,
-    maxZoom : 16,
-watch: true,
-});
 
-karte.on("locationfound", function(event){
-console.log(event);
-positionsmarker.setLatLng(event.latlng);
-L.circle(event.latlng, {radius: event.accuracy/2}).addTo(karte);
-});
-karte.on("locationerror", function(event) {
-    alert("Leider keinen Standort gefunden")
-});
-
-//karte.setView(
-//   [breite, laenge],
- //   13
-//);
+karte.setView(
+  [breite, laenge],
+  15
+);
 
 kartenLayer.bmapgrau.addTo(karte);
 
@@ -96,4 +81,27 @@ coords.addTo(karte);
 karte.on('click', function (e) {
     coords.setCoordinates(e);
 });
+
+
+for (let staette of SPORTSTAETTEN) {
+    console.log(staette);
+    let piktogramm = L.icon({
+        iconUrl: `icons/icon_${staette.icon}_schwarz_auf_weiss_250px.png`,
+        iconSize: 40,
+    });
+    let staettepin = L.marker(
+        [staette.lat, staette.lng], {
+            icon : piktogramm
+    
+        }
+    ).addTo(karte);
+    ;
+
+   staettepin.bindPopup(
+        `<h3>Standort ${staette.name}</h3>
+                    <p>Typ: ${staette.typ}</p>
+                    <p>Adresse: ${staette.adresse}</p>
+                    <em>Gruppe: ${staette.gruppe}</em>`
+    );
+}
 
