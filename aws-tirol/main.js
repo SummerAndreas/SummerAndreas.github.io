@@ -112,39 +112,95 @@ async function loadStations() {
     layerControl.addOverlay(awsTirol, "Wetterstationen Tirol");
     //Windrichtung anzueigen
     const windlayer = L.featureGroup();
+    let farbpalette_wind = [
+        [3, "#00b900"],
+        [4, "#10cd24"],
+        [5, "#72d475"],
+        [6, "#fed6d3"],
+        [7, "#ffb6b3"],
+        [8, "#ff9e9a"],
+        [9, "#ff8281"],
+        [10, "#ff6160"],
+        [11, "#ff453c"],
+        [12, "#ff200e"]
+    ];
+
     L.geoJson(stations, {
         pointToLayer: function (feature, latlng) {
             if (feature.properties.WR) {
-                let color = 'black';
-                if (feature.properties.WG > 20) {
-                    color = 'red';
+
+                for (let i = 0; i < farbpalette_wind.length; i++) {
+                    const windspeed_bf = Math.round(Math.pow(((feature.properties.WG / 3.6) / 0.836), (2 / 3)));
+                    //Umrechnen von beauford -> km/h (gesehen bei elleluk)
+                    if (windspeed_bf < farbpalette_wind[i][0]) {
+                        color = farbpalette_wind[i][1];
+                        break;
+                    }
                 }
                 return L.marker(latlng, {
                     icon: L.divIcon({
-                        html: `<i style ="color: ${color}; "transform: rotate(${feature.properties.WR}deg)" class="fas fa-arrow-circle-up fa-2x"></i>`
+                        html: `<i style="color: ${color}; transform: rotate(${feature.properties.WR-45}deg)" class="fas fa-arrow-circle-up fa-2x"></i>`
                     })
 
                 });
+
             }
         }
+
     }).addTo(windlayer);
     layerControl.addOverlay(windlayer, "Windrichtung");
-    //windlayer.addTo(karte)
 
-    //temperatur anzeigen
+
+    //Temperatur anzeigen & einfärben
     const temperaturlayer = L.featureGroup();
     const farbPalette = [
-        [-10, "blue"],
-        [0, "yellow"],
-        [10, "orange"],
-        [20, "red"],
+        [-28, "#646664"],
+        [-26, "#8c8a8c"],
+        [-24, "#b4b2b4"],
+        [-22, "#cccecc"],
+        [-20, "#e4e6e4"],
+        [-18, "#772d76"],
+        [-16, "#b123b0"],
+        [-14, "#d219d1"],
+        [-12, "#f0f"],
+        [-10, "#ff94ff"],
+        [-8, "#3800d1"],
+        [-6, "#325afe"],
+        [-4, "#2695ff"],
+        [-2, "#00cdff"],
+        [0, "#00fffe"],
+        [2, "#007800"],
+        [4, "#009d00"],
+        [6, "#00bc02"],
+        [8, "#00e200"],
+        [10, "#0f0"],
+        [12, "#fcff00"],
+        [14, "#fdf200"],
+        [16, "#fde100"],
+        [18, "#ffd100"],
+        [20, "#ffbd00"],
+        [22, "#ffad00"],
+        [24, "#ff9c00"],
+        [26, "#ff7800"],
+        [28, "red"],
+        [30, "#f30102"],
+        [32, "#d20000"],
+        [34, "#c10000"],
+        [36, "#b10000"],
+        [38, "#a10000"],
+        [40, "#900000"],
+        [42, "#770100"],
+        [44, "#5f0100"],
+        [46, "#460101"],
+        [48, "#2e0203"],
+
     ];
     L.geoJson(stations, {
             pointToLayer: function (feature, latlng) {
                 if (feature.properties.LT) {
-                    let color = 'red';
-                    for (let i=0; i<farbPalette.length; i++) {
-                        console.log(farbPalette[i],feature.properties.LT);
+
+                    for (let i = 0; i < farbPalette.length; i++) {
+                        console.log(farbPalette[i], feature.properties.LT);
                         if (feature.properties.LT < farbPalette[i][0]) {
                             color = farbPalette[i][1];
                             break;
@@ -166,5 +222,83 @@ async function loadStations() {
         .addTo(temperaturlayer);
     layerControl.addOverlay(temperaturlayer, "Temperatur");
     temperaturlayer.addTo(karte);
+    // Luftfeuchtigkeit
+    const humidityLayer = L.featureGroup();
+    let farbpalette_humidity = [
+        [30, "#EEE"],
+        [40, "#DDD"],
+        [50, "#C6C9CE"],
+        [60, "#BBB"],
+        [70, "#AAC"],
+        [80, "#9998DD"],
+        [90, "#8788EE"],
+        [100, "#7677E1"]
+
+    ];
+
+    L.geoJson(stations, {
+        pointToLayer: function (feature, latlng) {
+            let color;
+            if (feature.properties.RH) {
+                for (let i = 0; i < farbpalette_humidity.length; i++) {
+                    console.log(farbpalette_humidity[i], feature.properties.RH);
+                    if (feature.properties.RH < farbpalette_humidity[i][0]) {
+                        color = farbpalette_humidity[i][1];
+                        break;
+                    }
+                }
+
+                return L.marker(latlng, {
+                    icon: L.divIcon({
+                        html: `<div class="humidityLabel" style="background-color:${color}"> ${feature.properties.RH} </div>`
+                    })
+
+                });
+
+            }
+        }
+    }).addTo(humidityLayer);
+    layerControl.addOverlay(humidityLayer, "Relative Luftfeuchte");
+    //Schneehöhen (mit eigener Farbgebung)
+    const snowLayer = L.featureGroup();
+    const farbPalette_snow = [
+        [5, "#646664"],
+        [10, "#8c8a8c"],
+        [25, "#b4b2b4"],
+        [50, "#cccecc"],
+        [75, "#e4e6e4"],
+        [125, "#3800d1"],
+        [200, "#325afe"],
+        [300, "#2695ff"],
+        [400, "#00cdff"],
+        [800, "#00fffe"],
+    ]
+    L.geoJson(stations, {
+        pointToLayer: function (feature, latlng) {
+            if (feature.properties.HS) {
+                if (feature.properties.HS >= 0) {
+                    for (let i = 0; i < farbPalette_snow.length; i++) {
+
+                        if (feature.properties.HS < farbPalette_snow[i][0]) {
+                            color = farbPalette_snow[i][1];
+                            break;
+                        }
+                    }
+
+
+
+                    return L.marker(latlng, {
+                        icon: L.divIcon({
+                            html: `<div class="snowLabel" style= "background-color: ${color}"> ${feature.properties.HS}</div>`
+                        })
+
+                    });
+                }
+            }
+        }
+    }).addTo(snowLayer);
+    layerControl.addOverlay(snowLayer, "Schneehöhe")
+
 }
+
 loadStations();
