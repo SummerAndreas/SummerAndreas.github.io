@@ -299,6 +299,16 @@ async function loadStations() {
     }).addTo(snowLayer);
     layerControl.addOverlay(snowLayer, "Schneehöhe")
 
+    let farben = [
+     [0,"blau"],
+    [5,"gelb"],
+    [10,"rot"]
+    ];
+    farben.length; //Werte/Einträge im Arrey (in Bsp. =3)
+    farben[2][1]//erstes Element anzeigen [(n-1)][eintrag im Arrey(1 wärw rot,0 wäre 10)]
+    for (let i=0; i<farben.length; i++) {
+        console.log(farben[i]);
+    }
 }
 
 loadStations();
