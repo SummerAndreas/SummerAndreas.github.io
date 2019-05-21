@@ -81,20 +81,18 @@ new L.Control.MiniMap(
 
 // die Implementierung der Karte startet hier
 
-//GeoJson Daten der WLAN-Standorte 
-const wlan = "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:WLANWIENATOGD&srsName=EPSG:4326&outputFormat=json"
+//GeoJson Daten 
+const WLAN = "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:WLANWIENATOGD&srsName=EPSG:4326&outputFormat=json"
 
-//erzeugt Marker 
+//Marker 
 function makeMarker(feautre, latlng) {
     const Icon= L.icon({
                 iconUrl: "http://www.data.wien.gv.at/icons/wlanwienatogd.svg",
                 iconSize: [30, 30],
     });
-    // Positioniert Marker und lädt zuvor erzeugten Marker
     const marker = L.marker(latlng, {
             icon:Icon
     });
-    //definiert en PopUp des Markers
     marker.bindPopup(`
         <h3>${feautre.properties.NAME}</h3>
         <b> Adresse:</b> ${feautre.properties.ADRESSE}
@@ -103,22 +101,21 @@ function makeMarker(feautre, latlng) {
 }
 
 
-async function loadWlan(wlan) {
+async function loadWlan(WLAN) {
     const wlanClusterGruppe = L.markerClusterGroup();
-    const response = await fetch(wlan);
+    const response = await fetch(WLAN);
     const wlanData = await response.json();
     const geoJson = L.geoJson(wlanData, {
         pointToLayer: makeMarker
         
     });
-    //Plugin: Leaflet.markercluster.
+    //Plugin: markercluster
     wlanClusterGruppe.addLayer(geoJson)
     karte.addLayer(wlanClusterGruppe);
-    //Fügt Auswahl hinzu 
     layerControl.addOverlay(wlanClusterGruppe, "WLAN-Location");
 
     //Plugin: Leaflet Control Search
-    const Suche = new L.Control.Search({
+    const Suche = new L.control.search({
         layer: wlanClusterGruppe,
         propertyName: "NAME",
         zoom: 17,
@@ -126,10 +123,12 @@ async function loadWlan(wlan) {
     });
     
     karte.addControl(Suche)
-    karte.fitBounds(wlanClusterGruppe.getBounds());   
+    karte.fitBounds(wlanClusterGruppe.getBounds()); 
     
 }
-loadWlan(wlan);
+loadWlan(WLAN);
+
+
 
 //Maßstab 
 const scale= L.control.scale({

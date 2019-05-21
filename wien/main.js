@@ -69,6 +69,16 @@ karte.addControl(new L.Control.Fullscreen());
 
 karte.setView([48.208333, 16.373056], 12);
 
+// https://github.com/Norkart/Leaflet-MiniMap
+new L.Control.MiniMap(
+    L.tileLayer("https://{s}.wien.gv.at/basemap/geolandbasemap/normal/google3857/{z}/{y}/{x}.png", {
+        subdomains: ["maps", "maps1", "maps2", "maps3", "maps4"],
+    }), {
+        zoomLevelOffset: -4,
+        toggleDisplay: true
+    }
+).addTo(karte);
+
 const url = 'https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:SPAZIERPUNKTOGD &srsName=EPSG:4326&outputFormat=json';
 
 function makeMarker(feature, latlng) {
