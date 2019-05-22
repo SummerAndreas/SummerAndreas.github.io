@@ -67,6 +67,61 @@ kartenLayer.bmapgrau.addTo(karte);
 
 karte.addControl(new L.Control.Fullscreen());
 
+
+let letzteGeonamesUrl= null;
+karte.on("load zoomed moveend", function () {
+
+
+    let ausschnitt = {
+        n: karte.getBounds().getNorth(),
+        s: karte.getBounds().getSouth(),
+        o: karte.getBounds().getEast(),
+        w: karte.getBounds().getWest(),
+    }
+
+    const geonamesUrl = `http://api.geonames.org/wikipediaBoundingBoxJSON?formatted=true&north=${ausschnitt.n}&south=${ausschnitt.s}&east=${ausschnitt.o}&west=${ausschnitt.w}&username=webmapping&style=full&maxRows=20&lang=de`;
+    console.log(geonamesUrl);
+
+    if(geonamesUrl != letzteGeonamesUrl) {
+        //Json-Artikel laden
+    wikipediaArtikelLaden(geonamesUrl);
+    letzteGeonamesUrl = geonamesUrl;
+    }
+    
+
+
+
+});
+
+const wikipediaGruppe = L.featureGroup().addTo(karte);
+layerControl.addOverlay(wikipediaGruppe, "Wikipedia-Artikel")
+
+async function wikipediaArtikelLaden(url) {
+    wikipediaGruppe.clearLayers();
+    console.log("Lade", url);
+
+    const antwort = await fetch(url);
+    const jsonData = await antwort.json();
+
+    console.log(jsonData)
+    for (let artikel of jsonData.geonames) {
+        const wikipediaMarker = L.marker([artikel.lat, artikel.lng], {
+       icon : L.icon({
+                iconUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Wikipedia-logo-v2.svg/2000px-Wikipedia-logo-v2.svg.png",
+                iconSize: [30, 30],
+            })
+        }).addTo(wikipediaGruppe);
+        
+            wikipediaMarker.bindPopup(`
+        <h3>${artikel.title}</h3>
+        <p>  ${artikel.summary} </p>
+        <hr>
+        <footer><a target="_blank" href="https://${artikel.wikipediaUrl}">Weblink</a></footer>
+    `);
+        } 
+        
+}
+
 karte.setView([48.208333, 16.373056], 12);
 
 // https://github.com/Norkart/Leaflet-MiniMap
@@ -86,12 +141,12 @@ const WLAN = "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&v
 
 //Marker 
 function makeMarker(feautre, latlng) {
-    const Icon= L.icon({
-                iconUrl: "http://www.data.wien.gv.at/icons/wlanwienatogd.svg",
-                iconSize: [30, 30],
+    const Icon = L.icon({
+        iconUrl: "http://www.data.wien.gv.at/icons/wlanwienatogd.svg",
+        iconSize: [30, 30],
     });
     const marker = L.marker(latlng, {
-            icon:Icon
+        icon: Icon
     });
     marker.bindPopup(`
         <h3>${feautre.properties.NAME}</h3>
@@ -107,7 +162,7 @@ async function loadWlan(WLAN) {
     const wlanData = await response.json();
     const geoJson = L.geoJson(wlanData, {
         pointToLayer: makeMarker
-        
+
     });
     //Plugin: markercluster
     wlanClusterGruppe.addLayer(geoJson)
@@ -121,18 +176,22 @@ async function loadWlan(WLAN) {
         zoom: 17,
         initial: false
     });
-    
+
     karte.addControl(Suche)
-    karte.fitBounds(wlanClusterGruppe.getBounds()); 
-    
+    karte.fitBounds(wlanClusterGruppe.getBounds());
+
 }
 loadWlan(WLAN);
 
 
 
 //Maßstab 
-const scale= L.control.scale({
+const scale = L.control.scale({
     imperial: false,
     metric: true
-    });
+});
 scale.addTo(karte);
+
+// Wikipedia Artikel laden
+
+

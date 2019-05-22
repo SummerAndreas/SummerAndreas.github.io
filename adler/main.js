@@ -61,9 +61,10 @@ const kartenLayer = {
 //Open Street Map einbauen
 
 let pin1 = L.marker(
-    [breite1, laenge1])
+    [breite1, laenge1]
+).addTo(karte)
 
-kartenLayer.bmapoberflaeche.addTo(karte);
+kartenLayer.geolandbasemap.addTo(karte);
 
 L.control.layers({
     "Open Street Map": kartenLayer.osm,
@@ -114,3 +115,54 @@ coords.addTo(karte);
 karte.on('click', function (e) {
     coords.setCoordinates(e);
 });
+
+
+var gpx = '...'; // URL to your GPX file or the GPX itself
+new L.GPX("AdlerwegEtappe11.gpx", {
+        async: true,
+        marker_options: {
+            startIconUrl: 'https://raw.githubusercontent.com/mpetazzoni/leaflet-gpx/master/pin-icon-start.png',
+            endIconUrl: 'https://raw.githubusercontent.com/mpetazzoni/leaflet-gpx/master/pin-icon-end.png',
+            shadowUrl: 'https://raw.githubusercontent.com/mpetazzoni/leaflet-gpx/master/pin-shadow.png'
+        }
+    }).on('loaded', function (e) {
+        karte.fitBounds(e.target.getBounds());
+    }).on('addline', function (e) {
+            console.log('linie geladen');
+            const controlelevation = L.control.elevation({
+                detachedView: true,
+                elevationDiv: "#elevation-div",
+            });
+            controlelevation.addTo(karte);
+controlelevation.addData(e.line);
+const gpxLinie = e.line.getLatLngs();
+console.log(gpxLinie);
+for (let i = 1; i < gpxLinie.length; i += 1){
+   let p1 = gpxLinie[i-1];
+   let p2 = gpxLinie[i];
+    let dist = karte.distance(
+        [p1.lat,p1.lng],
+        [p2.lat,p2.lng]
+            );
+            let delta = (p2.meta.ele - p1.meta.ele);
+            let proz = (dist !=0 ? delta / dist * 100.0 : 0).toFixed(1);
+            let farbe =
+        proz >= 20 ? '#d73027':
+        proz >= 10 ? '#fc8d59':
+        proz >= 5 ? '#fee08b':
+        proz >= 0 ? '#ffffbf':
+        proz >= -10 ? '#d9ef8b':
+        proz >= -20 ? '#d9ef8b':
+         '#1a9850';
+L.polyline(
+    [
+        [p1.lat,p1.lng],
+        [p2.lat,p2.lng]
+    ], {
+        color : farbe,
+    }
+).addTo(karte);
+}
+
+           
+        });
