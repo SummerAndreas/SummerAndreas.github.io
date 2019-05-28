@@ -1,4 +1,4 @@
-/* Wien OGD Beispiele */
+/* Adlerweg Etappen Beispiel */
 
 let karte = L.map("map");
 
@@ -67,62 +67,7 @@ kartenLayer.bmapgrau.addTo(karte);
 
 karte.addControl(new L.Control.Fullscreen());
 
-
-let letzteGeonamesUrl= null;
-karte.on("load zoomed moveend", function () {
-
-
-    let ausschnitt = {
-        n: karte.getBounds().getNorth(),
-        s: karte.getBounds().getSouth(),
-        o: karte.getBounds().getEast(),
-        w: karte.getBounds().getWest(),
-    }
-
-    const geonamesUrl = `http://api.geonames.org/wikipediaBoundingBoxJSON?formatted=true&north=${ausschnitt.n}&south=${ausschnitt.s}&east=${ausschnitt.o}&west=${ausschnitt.w}&username=andreassummer&style=full&maxRows=20`;
-    console.log(geonamesUrl);
-
-    if(geonamesUrl != letzteGeonamesUrl) {
-        //Json-Artikel laden
-    wikipediaArtikelLaden(geonamesUrl);
-    letzteGeonamesUrl = geonamesUrl;
-    }
-    
-
-
-
-});
-
-const wikipediaGruppe = L.featureGroup().addTo(karte);
-layerControl.addOverlay(wikipediaGruppe, "Wikipedia-Artikel")
-
-async function wikipediaArtikelLaden(url) {
-    wikipediaGruppe.clearLayers();
-    console.log("Lade", url);
-
-    const antwort = await fetch(url);
-    const jsonData = await antwort.json();
-
-    console.log(jsonData)
-    for (let artikel of jsonData.geonames) {
-        const wikipediaMarker = L.marker([artikel.lat, artikel.lng], {
-       icon : L.icon({
-                iconUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Wikipedia-logo-v2.svg/2000px-Wikipedia-logo-v2.svg.png",
-                iconSize: [30, 30],
-            })
-        }).addTo(wikipediaGruppe);
-        
-            wikipediaMarker.bindPopup(`
-        <h3>${artikel.title}</h3>
-        <p>  ${artikel.summary} </p>
-        <hr>
-        <footer><a target="_blank" href="https://${artikel.wikipediaUrl}">Weblink</a></footer>
-    `);
-        } 
-        
-}
-
-karte.setView([48.208333, 16.373056], 12);
+karte.setView([47.25, 11.416667], 9);
 
 // https://github.com/Norkart/Leaflet-MiniMap
 new L.Control.MiniMap(
@@ -130,68 +75,88 @@ new L.Control.MiniMap(
         subdomains: ["maps", "maps1", "maps2", "maps3", "maps4"],
     }), {
         zoomLevelOffset: -4,
-        toggleDisplay: true
+        toggleDisplay: true,
+        minimized: true
     }
 ).addTo(karte);
 
 // die Implementierung der Karte startet hier
+let pulldown = document.getElementById("etappenPulldown");
+for (let i = 0; i < ETAPPEN.length; i++) {
 
-//GeoJson Daten 
-const WLAN = "https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:WLANWIENATOGD&srsName=EPSG:4326&outputFormat=json"
-
-//Marker 
-function makeMarker(feautre, latlng) {
-    const Icon = L.icon({
-        iconUrl: "http://www.data.wien.gv.at/icons/wlanwienatogd.svg",
-        iconSize: [30, 30],
-    });
-    const marker = L.marker(latlng, {
-        icon: Icon
-    });
-    marker.bindPopup(`
-        <h3>${feautre.properties.NAME}</h3>
-        <b> Adresse:</b> ${feautre.properties.ADRESSE}
-    `);
-    return marker;
+    pulldown.innerHTML += `<option value="${i}">${ETAPPEN[i].titel}</option>`
 }
 
+let gpxGruppe = L.featureGroup().addTo(karte);
+layerControl.addOverlay(gpxGruppe, "GPX-Track");
 
-async function loadWlan(WLAN) {
-    const wlanClusterGruppe = L.markerClusterGroup();
-    const response = await fetch(WLAN);
-    const wlanData = await response.json();
-    const geoJson = L.geoJson(wlanData, {
-        pointToLayer: makeMarker
+let controlElevation = null;
 
+etappeErzeugen(0);
+
+function etappeErzeugen(nummer) {
+    let daten = ETAPPEN[nummer];
+    //let titleText= daten.titel;
+    // let titelElement = document.getElementById("daten_titel");
+    //titelElement.innerHTML=titleText;
+    document.getElementById("daten_titel").innerHTML = daten.titel;
+    document.getElementById("daten_info").innerHTML = daten.info;
+    document.getElementById("daten_strecke").innerHTML = daten.strecke;
+    // console.log(daten);
+
+    //GPX Trakc laden
+    console.log(daten.gpsid);
+    daten.gpsid = daten.gpsid.replace("A", "");
+    console.log(daten.gpsid);
+
+    gpxGruppe.clearLayers();
+    const gpxTrack = new L.GPX(`gpx/AdlerwegEtappe${daten.gpsid}.gpx`, {
+        async: true,
+        marker_options: {
+            startIconUrl: 'icons/pin-icon-start.png',
+            endIconUrl: 'icons/pin-icon-end.png',
+            shadowUrl: 'icons/pin-shadow.png',
+            iconSize: [32, 37]
+        }
+    }).addTo(gpxGruppe);
+
+    gpxTrack.on("loaded", function () {
+        karte.fitBounds(gpxTrack.getBounds());
     });
-    //Plugin: markercluster
-    wlanClusterGruppe.addLayer(geoJson)
-    karte.addLayer(wlanClusterGruppe);
-    layerControl.addOverlay(wlanClusterGruppe, "WLAN-Location");
 
-    //Plugin: Leaflet Control Search
-    const Suche = new L.control.search({
-        layer: wlanClusterGruppe,
-        propertyName: "NAME",
-        zoom: 17,
-        initial: false
-    });
+    gpxTrack.on("addline", function (evt) {
+        if (controlElevation) {
+            controlElevation.clear();
+            document.getElementById("elevation-div").innerHTML = "";
+        }
+        controlElevation = L.control.elevation({
+            theme: "steelblue-theme",
+            detachedView: true,
+            elevationDiv: "#elevation-div"
 
-    karte.addControl(Suche)
-    karte.fitBounds(wlanClusterGruppe.getBounds());
-
+        })
+        controlElevation.addTo(karte);
+        controlElevation.addData(evt.line);
+    })
 }
-loadWlan(WLAN);
+pulldown.onchange = function (evt) {
+    let opts = evt.target.options
+    console.log(opts[opts.selectedIndex].value);
+    console.log(opts[opts.selectedIndex].text);
+    etappeErzeugen(opts[opts.selectedIndex].value);
+}
 
-
-
-//Maßstab 
-const scale = L.control.scale({
-    imperial: false,
-    metric: true
+const routingMachine = L.Routing.control({}).addTo(karte);
+let start, end;
+karte.on("click", function (ev) {
+    console.log("clicked: ", ev)
+    if (!start) {
+        start = ev.latlng;
+    } else {
+        end = ev.latlng;
+        routingMachine.setWaypoints([start, end]);
+        routingMachine.route();
+        start = null;
+    }
+    console.log("Strart:" , start, "End: ", end)
 });
-scale.addTo(karte);
-
-// Wikipedia Artikel laden
-
-

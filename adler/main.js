@@ -127,7 +127,12 @@ new L.GPX("AdlerwegEtappe11.gpx", {
         }
     }).on('loaded', function (e) {
         karte.fitBounds(e.target.getBounds());
-    }).on('addline', function (e) {
+        const statsDiv= document.getElementById("stats");
+        const minheight = e.target.get_elevation_min();
+        const maxheigth = e.target.get_elevation_max();
+        const vertical = Math.round(e.target.get_elevation_gain());
+        statsDiv.innerHTML= `Routen Statistik: niedrigster Punkt: ${minheight}m, höchster Punkt: ${maxheigth}m, Höhenunterschied: ${vertical}m `
+          }).on('addline', function (e) {
             console.log('linie geladen');
             const controlelevation = L.control.elevation({
                 detachedView: true,
