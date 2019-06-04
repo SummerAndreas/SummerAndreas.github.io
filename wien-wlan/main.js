@@ -79,7 +79,7 @@ karte.on("load zoomed moveend", function () {
         w: karte.getBounds().getWest(),
     }
 
-    const geonamesUrl = `http://api.geonames.org/wikipediaBoundingBoxJSON?formatted=true&north=${ausschnitt.n}&south=${ausschnitt.s}&east=${ausschnitt.o}&west=${ausschnitt.w}&username=andreassummer&style=full&maxRows=20`;
+    const geonamesUrl = `http://api.geonames.org/wikipediaBoundingBoxJSON?formatted=true&north=${ausschnitt.n}&south=${ausschnitt.s}&east=${ausschnitt.o}&west=${ausschnitt.w}&username=summerandreas&style=full&maxRows=20`;
     console.log(geonamesUrl);
 
     if(geonamesUrl != letzteGeonamesUrl) {
